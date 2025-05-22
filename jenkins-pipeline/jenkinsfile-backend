@@ -48,7 +48,13 @@ pipeline {
             steps {
                 dir('app-code/backend') {
                     withCredentials([string(credentialsId: 'NVD_API_KEY', variable: 'NVD_API_KEY_VAR')]) {
-                        dependencyCheck additionalArguments: "--scan ./ --disableYarnAudit --disableNodeAudit -Ddependencycheck.cve.apiKey=${NVD_API_KEY_VAR}", odcInstallation: 'DP-Check'
+                        // Pass the NVD API Key using the dedicated 'nvdApiKey' parameter
+                        // of the Jenkins 'dependencyCheck' step.
+                        // This is the correct, secure, and recognized way.
+                        dependencyCheck additionalArguments: '--scan ./ --disableYarnAudit --disableNodeAudit',
+                                        odcInstallation: 'DP-Check',
+                                        nvdApiKey: "${NVD_API_KEY_VAR}" // <--- ADD THIS LINE AND REMOVE FROM additionalArguments
+                        
                         dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
                     }
                 }
